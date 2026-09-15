@@ -7,17 +7,17 @@ Author: Christian Immanuel Valerio - Tech Enthusiat
 
 ---
 
-## Ringkasan Proyek (Metode STAR)
+## Ringkasan Proyek
 
-### 1. Situation (Situasi)
+### 1. Situation
 Dalam operasional bisnis retail global, perusahaan menghadapi tantangan dalam efisiensi biaya pemasaran dan tingginya transaksi yang merugikan akibat diskon serta biaya operasional yang tidak terukur. Data mentah tersimpan dalam database relasional SQLite yang terdiri dari beberapa tabel terpisah (orders, order_items, customers, products, locations). Diperlukan sistem machine learning terintegrasi dari database hingga antarmuka pengguna untuk memetakan perilaku pelanggan dan memitigasi pesanan berisiko rugi.
 
-### 2. Task (Tugas)
+### 2. Task
 Tugas utama yang diselesaikan dalam proyek ini mencakup 2 pemodelan Machine Learning:
 * **Clustering (Customer Segmentation)**: Mengelompokkan pelanggan berdasarkan perilaku transaksi tanpa label sebelumnya untuk menentukan strategi retensi yang tepat.
 * **Classification (Order Profitability)**: Memprediksi apakah suatu pesanan akan menghasilkan laba (Profitable) atau mengalami kerugian (Unprofitable) sebelum transaksi diproses.
 
-### 3. Action (Tahapan Pengerjaan)
+### 3. Action 
 * **Data Extraction**: Menghubungkan dan memuat database SQLite secara terprogram menggunakan `sqlite3` dan `pandas` melalui query SQL JOIN multi-tabel.
 * **Exploratory Data Analysis (EDA) & Preprocessing**:
   * Menganalisis distribusi data, korelasi diskon terhadap laba, dan missing values.
@@ -30,7 +30,7 @@ Tugas utama yang diselesaikan dalam proyek ini mencakup 2 pemodelan Machine Lear
   * Membangun REST API menggunakan **FastAPI** dengan endpoint inferensi `/predict/segmentation` dan `/predict/profitability`.
   * Membangun antarmuka simulasi interaktif berbasis **Streamlit** yang terhubung langsung ke backend API.
 
-### 4. Result (Hasil & Kesimpulan)
+### 4. Result 
 * **Hasil Evaluasi**:
   * Model clustering berhasil memetakan segmentasi pelanggan ke dalam kelompok yang jelas (High-Value Loyalists, Regular Buyers, dan Discount Seekers) dibuktikan dengan Silhouette Score yang optimal.
   * Model klasifikasi berhasil mendeteksi transaksi merugi dengan evaluasi komprehensif pada metrik Accuracy, Precision, Recall, F1-Score, dan ROC-AUC.
