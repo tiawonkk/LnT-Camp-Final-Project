@@ -69,3 +69,18 @@ Proyek ini menyelesaikan dua tugas pemodelan *Machine Learning* utama:
 │   ├── requirements.txt
 │   └── superstore.sqlite
 └── README.md
+
+## Panduan Instalasi & Eksekusi
+
+Pastikan sistem telah terpasang **Python 3.10+** dan **Git**. Disarankan menggunakan *virtual environment* agar dependensi antar modul tidak berbenturan.
+
+---
+
+### 1. Kloning Repositori
+
+Buka terminal (PowerShell / Command Prompt / Bash) dan jalankan perintah berikut:
+
+```bash
+git clone [https://github.com/username/LnT-Camp-Final-Project.git](https://github.com/username/LnT-Camp-Final-Project.git)
+cd LnT-Camp-Final-Project
+```
