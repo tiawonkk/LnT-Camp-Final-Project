@@ -69,6 +69,7 @@ Proyek ini menyelesaikan dua tugas pemodelan *Machine Learning* utama:
 │   ├── requirements.txt
 │   └── superstore.sqlite
 └── README.md
+```
 
 ## Panduan Instalasi & Eksekusi
 
