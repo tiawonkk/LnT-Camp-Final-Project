@@ -204,7 +204,7 @@ Models are loaded directly from the model/ directory upon application startup.
 Ensure the backend terminal displays ```Application startup complete on``` port ```8000``` before triggering predictions on the dashboard.
 
 Project Links
-- Deployed Frontend: [Link pending]
-- Deployed Backend API: [Link pending]
-- GitHub Repository: [Link pending]
+- Deployed Frontend: https://bubbly-friendship-production-b89f.up.railway.app/
+- Deployed Backend API: https://lnt-camp-final-project-production.up.railway.app/docs
+- GitHub Repository: https://github.com/tiawonkk/LnT-Camp-Final-Project
 - LinkedIn Post: [Link pending]
