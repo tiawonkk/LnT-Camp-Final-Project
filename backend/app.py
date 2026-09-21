@@ -14,11 +14,11 @@ from schemas import (
 
 app = FastAPI(
     title="Retail Analytics Backend API",
-    description="API Inference untuk Customer Segmentation dan Order Profitability Prediction",
+    description="Inference API for Customer Segmentation and Order Profitability Prediction",
     version="1.0.0"
 )
 
-# Setup CORS agar Frontend dapat melakukan HTTP request tanpa terblokir
+# Configure CORS to allow the frontend to execute HTTP requests without restrictions
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -27,37 +27,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Resolusi path absolut ke direktori model/
+# Resolve absolute path to the model/ directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, "..", "model")
 
 CLUSTERING_MODEL_PATH = os.path.join(MODEL_DIR, "customer_clustering_pipeline.joblib")
 CLASSIFICATION_MODEL_PATH = os.path.join(MODEL_DIR, "order_profitability_pipeline.joblib")
 
-# Load model saat startup (tanpa retraining)
+# Load serialized pipelines at startup (decoupled from training)
 try:
     clustering_model = joblib.load(CLUSTERING_MODEL_PATH)
     classification_model = joblib.load(CLASSIFICATION_MODEL_PATH)
-    print("Berhasil memuat customer_clustering_pipeline.joblib dan order_profitability_pipeline.joblib")
+    print("Successfully loaded customer_clustering_pipeline.joblib and order_profitability_pipeline.joblib")
 except Exception as e:
-    raise RuntimeError(f"Gagal memuat model dari {MODEL_DIR}: {e}")
+    raise RuntimeError(f"Failed to load model artifacts from {MODEL_DIR}: {e}")
 
-# Mapping profil bisnis untuk segmen K-Means
+# Business persona profiles for K-Means cohorts
 CLUSTER_PROFILES = {
     0: {
         "segment_name": "Active Moderate Spenders",
-        "description": "Pelanggan aktif berbelanja moderat dengan frekuensi berkala.",
-        "actionable": "Terapkan rekomendasi produk komplementer (cross-selling) untuk menaikkan basket size."
+        "description": "Active customers with consistent order frequency and moderate basket size.",
+        "actionable": "Deploy cross-selling recommendations with complementary items to increase basket size."
     },
     1: {
         "segment_name": "High-Value Champions",
-        "description": "Pelanggan prioritas dengan frekuensi belanja tinggi dan kontribusi sales terbesar.",
-        "actionable": "Berikan loyalty program VIP, reward eksklusif, dan early access katalog baru."
+        "description": "Priority tier with the highest purchase frequency and primary revenue contribution.",
+        "actionable": "Provide VIP loyalty rewards, exclusive perks, and early catalog access."
     },
     2: {
         "segment_name": "At-Risk / Lapsed Customers",
-        "description": "Pelanggan dengan jeda transaksi sangat lama dan nilai moneter rendah.",
-        "actionable": "Jalankan win-back email campaign dengan voucher diskon bersyarat min. belanja."
+        "description": "Dormant accounts with prolonged inter-purchase dormancy and low monetary value.",
+        "actionable": "Launch automated win-back email workflows with minimum-spend conditional vouchers."
     }
 }
 
@@ -66,7 +66,7 @@ CLUSTER_PROFILES = {
 def health_check():
     return {
         "status": "healthy",
-        "message": "Backend service dan model inference siap beroperasi."
+        "message": "Backend service and model inference ready."
     }
 
 
@@ -82,8 +82,8 @@ def predict_cluster(payload: ClusteringInput):
         pred_cluster = int(clustering_model.predict(input_data)[0])
         profile = CLUSTER_PROFILES.get(pred_cluster, {
             "segment_name": "Unknown",
-            "description": "Segmen tidak teridentifikasi.",
-            "actionable": "Lakukan analisis manual."
+            "description": "Unidentified customer segment.",
+            "actionable": "Manual review required."
         })
         
         return {
@@ -93,7 +93,7 @@ def predict_cluster(payload: ClusteringInput):
             "actionable_recommendation": profile["actionable"]
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Inference error pada clustering: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Clustering inference error: {str(e)}")
 
 
 @app.post("/predict/profitability", response_model=ClassificationOutput, tags=["Inference"])
@@ -107,10 +107,10 @@ def predict_profitability(payload: ClassificationInput):
         
         if prediction == 1:
             status = "Profitable"
-            rec = "Order aman diproses. Margin kotor diproyeksikan mampu menutup shipping cost."
+            rec = "Order approved. Gross margins are projected to absorb fulfillment and shipping overhead."
         else:
             status = "Not Profitable"
-            rec = "Peringatan kerugian: Rasio diskon atau shipping cost terlalu tinggi relatif terhadap nilai sales."
+            rec = "Loss alert: Discount rate or logistics overhead exceeds acceptable thresholds relative to order value."
             
         return {
             "is_profitable": prediction,
@@ -119,4 +119,4 @@ def predict_profitability(payload: ClassificationInput):
             "recommendation": rec
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Inference error pada classification: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Classification inference error: {str(e)}")

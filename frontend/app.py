@@ -1,38 +1,37 @@
 import streamlit as st
 import requests
 import pandas as pd
+import os
 
-# Konfigurasi Halaman
 st.set_page_config(
     page_title="Superstore Retail Analytics Dashboard",
     page_icon="📊",
     layout="wide"
 )
 
-BACKEND_URL = "http://127.0.0.1:8000"
+BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
 
-# Header Utama
 st.title("📊 Superstore Retail Analytics & ML Platform")
 st.markdown(
-    "Solusi *end-to-end* untuk analisis transaksi ritel: visualisasi eksplorasi data (EDA), "
-    "segmentasi profil pelanggan (Clustering), dan prediksi profitabilitas pesanan (Classification)."
+    "An end-to-end retail transaction analytics suite: Exploratory Data Analysis (EDA), "
+    "customer behavioral profiling (Clustering), and real-time order profitability inference (Classification)."
 )
 
-# Sidebar: Status Sistem & Kontrol
+# Sidebar: System Status & Controls
 with st.sidebar:
-    st.header("⚙️ Status Backend API")
+    st.header("⚙️ Backend API Status")
     try:
         res = requests.get(f"{BACKEND_URL}/health", timeout=3)
         if res.status_code == 200:
-            st.success("Backend API: Terhubung 🟢")
+            st.success("Backend API: Connected 🟢")
         else:
             st.error("Backend API: Error 🔴")
     except requests.exceptions.RequestException:
-        st.error("Backend API: Tidak Terhubung 🔴")
-        st.caption("Pastikan server FastAPI telah dijalankan di `http://127.0.0.1:8000`.")
+        st.error("Backend API: Disconnected 🔴")
+        st.caption(f"Ensure the FastAPI server is running at `{BACKEND_URL}`.")
 
     st.markdown("---")
-    st.subheader("📌 Arsitektur Sistem")
+    st.subheader("📌 System Architecture")
     st.markdown(
         "- **Modeling:** K-Means & Random Forest\n"
         "- **Pipeline:** Scikit-Learn + Joblib\n"
@@ -40,7 +39,7 @@ with st.sidebar:
         "- **Frontend:** Streamlit"
     )
 
-# Tab Navigasi
+# Navigation Tabs
 tab_eda, tab_cluster, tab_class = st.tabs([
     "📈 Exploratory Data Analysis (EDA)",
     "🎯 Customer Segmentation (Clustering)",
@@ -51,69 +50,70 @@ tab_eda, tab_cluster, tab_class = st.tabs([
 # TAB 1: EDA & BUSINESS INSIGHTS
 # =========================================================
 with tab_eda:
-    st.subheader("Eksplorasi Data & Metrik Bisnis Utama")
-    st.markdown("Ringkasan temuan kunci dari 51.290 transaksi Superstore.")
+    st.subheader("Data Exploration & Key Business Metrics")
+    st.markdown("High-level empirical findings extracted across 51,290 Superstore transactions.")
 
-    # KPI Metrik Agregat
+    # Aggregate KPI Metrics
     kpi1, kpi2, kpi3, kpi4 = st.columns(4)
     with kpi1:
-        st.metric(label="Total Transaksi", value="51,290")
+        st.metric(label="Total Transactions", value="51,290")
     with kpi2:
-        st.metric(label="Rasio Pesanan Untung", value="80.6%", delta="Profitable")
+        st.metric(label="Profitable Order Ratio", value="80.6%", delta="Profitable")
     with kpi3:
-        st.metric(label="Rasio Pesanan Rugi", value="19.4%", delta="-Unprofitable", delta_color="inverse")
+        st.metric(label="Unprofitable Order Ratio", value="19.4%", delta="-Unprofitable", delta_color="inverse")
     with kpi4:
-        st.metric(label="Optimal Cluster (k)", value="3", help="Berdasarkan Elbow Method & Silhouette Score")
+        st.metric(label="Optimal Clusters (k)", value="3", help="Validated via Elbow Method & Silhouette Score")
 
     st.markdown("---")
 
-    # Bagian 1: Clustering (Atas)
-    st.markdown("#### 1. Karakteristik Segmentasi Pelanggan (RFM)")
+    # Section 1: Clustering
+    st.markdown("#### 1. Customer Segmentation Profiles (RFM)")
     st.write(
-        "Melalui evaluasi **Elbow Method** dan **Silhouette Score** ($k=3$), "
-        "pelanggan terbagi menjadi tiga perilaku belanja yang tegas:"
+        "Validated by the **Elbow Method** and peak **Silhouette Score** ($k=3$), "
+        "the customer base is partitioned into three distinct behavioral cohorts:"
     )
 
     cluster_data = {
         "Cluster": ["Cluster 1: High-Value Champions", "Cluster 0: Regular Spenders", "Cluster 2: At-Risk / Lapsed"],
-        "Recency (Hari)": ["< 400 hari (Sangat Aktif)", "< 400 hari (Aktif)", "400 - 1.400+ hari (Lama)"],
-        "Frequency (Order)": ["> 6 - 18 kali", "1 - 7 kali", "1 - 5 kali"],
-        "Monetary (Sales)": ["> $10.000 (Hingga $25.000)", "< $5.000", "< $3.000"],
-        "Strategi Bisnis": ["Loyalty VIP & Layanan Prioritas", "Cross-selling & Upselling", "Win-back Re-engagement Campaign"]
+        "Recency (Days)": ["< 400 days (Highly Active)", "< 400 days (Active)", "400 - 1,400+ days (Dormant)"],
+        "Frequency (Orders)": ["> 6 - 18 orders", "1 - 7 orders", "1 - 5 orders"],
+        "Monetary (Sales)": ["> $10,000 (Up to $25,000)", "< $5,000", "< $3,000"],
+        "Business Strategy": ["VIP Loyalty & Priority Service", "Cross-selling & Upselling", "Win-Back Re-engagement Campaigns"]
     }
     st.dataframe(pd.DataFrame(cluster_data), use_container_width=True, hide_index=True)
 
     st.markdown("---")
 
-    # Bagian 2: Classification (Bawah)
-    st.markdown("#### 2. Penentu Profitabilitas Transaksi (Classification)")
+    # Section 2: Classification
+    st.markdown("#### 2. Order Profitability Determinants (Classification)")
     st.write(
-        "Berdasarkan analisis *Feature Importance* model ensemble Random Forest, "
-        "berikut proporsi faktor yang menentukan apakah transaksi untung atau rugi:"
+        "Based on the *Feature Importance* analysis from the ensemble Random Forest model, "
+        "the following factors dictate transaction-level profit margins:"
     )
 
     importance_data = {
-        "Fitur Prediktor": ["Discount", "Discount Tier: No Discount", "Shipping Cost", "Sales", "Discount Tier: Medium", "Quantity"],
+        "Predictor Feature": ["Discount", "Discount Tier: No Discount", "Shipping Cost", "Sales", "Discount Tier: Medium", "Quantity"],
         "Importance Score": [0.315, 0.160, 0.122, 0.108, 0.089, 0.040],
-        "Dampak Margin": ["Negatif Ekstrem", "Sangat Positif", "Negatif Signifikan", "Positif", "Negatif Tinggi", "Netral / Positif"]
+        "Margin Impact": ["Extreme Negative", "Strong Positive", "Significant Negative", "Positive", "High Negative", "Neutral / Positive"]
     }
     st.dataframe(pd.DataFrame(importance_data), use_container_width=True, hide_index=True)
 
     st.info(
-        "💡 **Rekomendasi Operasional:** Kebijakan pemotongan harga (`discount`) memiliki pengaruh paling dominan terhadap margin kotor. "
-        "Pembatasan diskon maksimal 20% pada produk margin tipis sangat dianjurkan untuk menekan rasio 19.4% pesanan yang merugi."
+        "💡 **Operational Recommendation:** Markdown policy (`discount`) exerts the strongest downward pressure on gross margins. "
+        "Enforcing an automated 20% discount cap on slim-margin categories is critical to curb the 19.4% share of unprofitable orders."
     )
+
 # =========================================================
 # TAB 2: CLUSTERING (RFM INFERENCE)
 # =========================================================
 with tab_cluster:
-    st.subheader("Prediksi Segmen Pelanggan Baru")
-    st.write("Masukkan indikator transaksi pelanggan untuk menentukan penempatan segmen K-Means secara instan.")
+    st.subheader("New Customer Segment Inference")
+    st.write("Input customer behavioral metrics to compute instant K-Means cohort assignments.")
 
     col1, col2, col3 = st.columns(3)
     with col1:
         recency = st.number_input(
-            "Recency (Hari sejak transaksi terakhir)",
+            "Recency (Days since last purchase)",
             min_value=0.0,
             max_value=2000.0,
             value=35.0,
@@ -121,7 +121,7 @@ with tab_cluster:
         )
     with col2:
         frequency = st.number_input(
-            "Frequency (Jumlah riwayat order)",
+            "Frequency (Lifetime unique orders)",
             min_value=1,
             max_value=100,
             value=8,
@@ -129,46 +129,46 @@ with tab_cluster:
         )
     with col3:
         monetary = st.number_input(
-            "Monetary (Total nilai belanja kumulatif / $)",
+            "Monetary (Cumulative spend in USD)",
             min_value=0.0,
             max_value=100000.0,
             value=4500.0,
             step=50.0
         )
 
-    if st.button("Jalankan Inferensi Klaster", type="primary", use_container_width=True):
+    if st.button("Run Cluster Inference", type="primary", use_container_width=True):
         payload = {
             "recency": float(recency),
             "frequency": int(frequency),
             "monetary": float(monetary)
         }
         try:
-            with st.spinner("Memproses ke backend FastAPI..."):
+            with st.spinner("Submitting request to FastAPI backend..."):
                 response = requests.post(f"{BACKEND_URL}/predict/cluster", json=payload)
 
             if response.status_code == 200:
                 result = response.json()
-                st.success("Prediksi Segmentasi Berhasil!")
+                st.success("Customer Segmentation Successful!")
 
                 r1, r2 = st.columns([1, 2])
                 with r1:
                     st.metric("Cluster ID", f"Cluster {result['cluster_id']}")
-                    st.info(f"**Nama Segmen:**\n\n{result['segment_name']}")
+                    st.info(f"**Segment Name:**\n\n{result['segment_name']}")
                 with r2:
-                    st.markdown("**Deskripsi Perilaku:**")
+                    st.markdown("**Behavioral Profile:**")
                     st.write(result["description"])
-                    st.warning(f"**Rekomendasi Tindakan Bisnis:**\n\n{result['actionable_recommendation']}")
+                    st.warning(f"**Actionable Recommendation:**\n\n{result['actionable_recommendation']}")
             else:
-                st.error(f"Gagal memproses prediksi: {response.text}")
+                st.error(f"Inference execution failed: {response.text}")
         except Exception as e:
-            st.error(f"Koneksi backend gagal: {str(e)}")
+            st.error(f"Backend connection error: {str(e)}")
 
 # =========================================================
 # TAB 3: CLASSIFICATION (PROFITABILITY INFERENCE)
 # =========================================================
 with tab_class:
-    st.subheader("Simulasi & Prediksi Profitabilitas Transaksi")
-    st.write("Uji kombinasi order untuk memproyeksikan apakah order tersebut berisiko merugikan atau aman diproses.")
+    st.subheader("Order Profitability Simulation & Prediction")
+    st.write("Simulate order attributes to evaluate transaction profitability before processing.")
 
     c1, c2, c3 = st.columns(3)
     with c1:
@@ -178,7 +178,7 @@ with tab_class:
 
     with c2:
         shipping_cost = st.number_input("Shipping Cost ($)", min_value=0.0, max_value=2000.0, value=15.0, step=1.0)
-        delivery_duration = st.number_input("Delivery Duration (Hari)", min_value=0, max_value=30, value=3, step=1)
+        delivery_duration = st.number_input("Delivery Duration (Days)", min_value=0, max_value=30, value=3, step=1)
         ship_mode = st.selectbox(
             "Ship Mode",
             ["Standard Class", "Second Class", "First Class", "Same Day"]
@@ -194,7 +194,7 @@ with tab_class:
             ["Technology", "Furniture", "Office Supplies"]
         )
 
-        # Mapping default tier diskon
+        # Map default discount tier
         if discount == 0.0:
             default_tier_idx = 0
         elif discount <= 0.2:
@@ -210,7 +210,7 @@ with tab_class:
             index=default_tier_idx
         )
 
-    if st.button("Prediksi Margin Keuntungan", type="primary", use_container_width=True):
+    if st.button("Predict Profitability Margin", type="primary", use_container_width=True):
         payload = {
             "sales": float(sales),
             "quantity": int(quantity),
@@ -223,7 +223,7 @@ with tab_class:
             "discount_tier": discount_tier
         }
         try:
-            with st.spinner("Menghitung estimasi klasifikasi..."):
+            with st.spinner("Evaluating order risk via ensemble model..."):
                 response = requests.post(f"{BACKEND_URL}/predict/profitability", json=payload)
 
             if response.status_code == 200:
@@ -236,10 +236,10 @@ with tab_class:
                         st.success(f"### Status: {result['status']}")
                     else:
                         st.error(f"### Status: {result['status']}")
-                    st.metric("Tingkat Keyakinan (Probabilitas Untung)", f"{result['profitability_probability'] * 100:.2f}%")
+                    st.metric("Confidence Score (Profit Probability)", f"{result['profitability_probability'] * 100:.2f}%")
                 with cr2:
-                    st.info(f"**Rekomendasi Manajerial:**\n\n{result['recommendation']}")
+                    st.info(f"**Managerial Recommendation:**\n\n{result['recommendation']}")
             else:
-                st.error(f"Gagal memproses respons backend: {response.text}")
+                st.error(f"Failed to parse backend response: {response.text}")
         except Exception as e:
-            st.error(f"Koneksi backend gagal: {str(e)}")
+            st.error(f"Backend connection error: {str(e)}")
